@@ -22,12 +22,17 @@ class Contacts
         this.contactsData.push({name: name});
     }
 }
+window.Contacts = Contacts;
 
 class ContactItem extends Component
 {
     render()
     {
-        return <li>{this.props.contactData.name}</li>
+        return (
+            <li key={this.props.contactData.name}>
+                {this.props.contactData.name}
+            </li>
+        )
     }
 }
 
@@ -36,8 +41,8 @@ class ContactInput extends Component
     constructor(props)
     {
         super(props)
-        this.handleClick = this.handleClick.bind(this);
-        this.setState({ contactName: ''});
+        // this.handleClick = this.handleClick.bind(this);
+        this.state = { contactName: ''};
     }
 
     handleClick()
@@ -46,12 +51,18 @@ class ContactInput extends Component
         this.setState({contactName: ''});
     }
 
+    updateState(event)
+    {
+        this.setState({contactName: event.target.value});
+    }
+
     render()
     {
         return (
-            <div class="contact-input-wrapper">
-                <input type='text' name='contactName' value=''/>
-                <button onclick="this.handleClick">Add</button>
+            <div className="contact-input-wrapper">
+                <h1>{this.state.contactName}</h1>
+                <input type='text' name='contactName' onChange={this.updateState.bind(this)}/>
+                <button onClick={this.handleClick.bind(this)}>Add</button>
             </div>
         )
     }
