@@ -19,7 +19,16 @@ class Contacts
 
     static addContact(name)
     {
-        this.contactsData.push({name: name});
+        this.contactsData.push({id: this.maxId() + 1, name: name});
+    }
+
+    static count()
+    {
+        return this.contactsData.length;
+    }
+
+    static maxId(){
+        return this.contactsData.reduce((prev, current) => prev.id > current.id ? prev : current )
     }
 }
 window.Contacts = Contacts;
@@ -28,11 +37,7 @@ class ContactItem extends Component
 {
     render()
     {
-        return (
-            <li key={this.props.contactData.name}>
-                {this.props.contactData.name}
-            </li>
-        )
+        return <li>{this.props.contactData.name}</li>
     }
 }
 
@@ -41,7 +46,7 @@ class ContactInput extends Component
     constructor(props)
     {
         super(props)
-        // this.handleClick = this.handleClick.bind(this);
+        this.handleClick = this.handleClick.bind(this);
         this.state = { contactName: ''};
     }
 
@@ -60,9 +65,9 @@ class ContactInput extends Component
     {
         return (
             <div className="contact-input-wrapper">
-                <h1>{this.state.contactName}</h1>
-                <input type='text' name='contactName' onChange={this.updateState.bind(this)}/>
-                <button onClick={this.handleClick.bind(this)}>Add</button>
+            <h1>{this.state.contactName}</h1>
+            <input type='text' name='contactName' onChange={this.updateState.bind(this)}/>
+            <button onClick={this.handleClick}>Add</button>
             </div>
         )
     }
@@ -74,15 +79,15 @@ class App extends Component
     render()
     {
         let items =  (this.props.contactsData || []).map(
-            (contactData) => <ContactItem contactData={contactData}/>
+            (contactData) => <ContactItem key={contactData.id.toString()} contactData={contactData}/>
         );
         return (
             <div className="App">
-                <h1>Contact List</h1>
-                <ul>
-                    {items}
-                </ul>
-                <ContactInput/>
+            <h1>Contact List</h1>
+            <ul>
+            {items}
+            </ul>
+            <ContactInput/>
             </div>
         );
     }

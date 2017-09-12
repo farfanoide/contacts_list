@@ -6,12 +6,15 @@ import registerServiceWorker from './registerServiceWorker';
 
 
 var contactsData = [
-    {name: 'mire'},
-    {name: 'pepe'},
+    {id: 1, name: 'mire'},
+    {id: 2, name: 'pepe'},
 ];
 
 Contacts.setContactsData(contactsData);
 Contacts.deleteContact('mire');
+Contacts.addContactData = (contact) => {
+  this.contactsData.push(contact)
+};
 
 ReactDOM.render(<App contactsData={ Contacts.contactsData } />,
                 document.getElementById('root'));
