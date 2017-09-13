@@ -27,8 +27,11 @@ class Contacts
         return this.contactsData.length;
     }
 
-    static maxId(){
-        return this.contactsData.reduce((prev, current) => prev.id > current.id ? prev : current )
+    static maxId()
+    {
+        return this.contactsData.reduce(
+            (prev, current) => prev.id > current.id ? prev : current
+        ).id
     }
 }
 window.Contacts = Contacts;
