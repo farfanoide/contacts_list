@@ -1,46 +1,20 @@
 import React, { Component } from 'react';
 import './App.css';
 
-class Contacts
-{
-    static contactsData = []
-
-    static setContactsData(contactsData)
-    {
-        this.contactsData = contactsData;
-    }
-
-    static deleteContact(contactPk)
-    {
-        this.contactsData = this.contactsData.filter(
-            contact => contact.name !== contactPk
-        );
-    }
-
-    static addContact(name)
-    {
-        this.contactsData.push({id: this.maxId() + 1, name: name});
-    }
-
-    static count()
-    {
-        return this.contactsData.length;
-    }
-
-    static maxId()
-    {
-        return this.contactsData.reduce(
-            (prev, current) => prev.id > current.id ? prev : current
-        ).id
-    }
-}
-window.Contacts = Contacts;
 
 class ContactItem extends Component
 {
+    handleClick()
+    {
+        this.props.deleteContact(this.props.contactData.id);
+    }
     render()
     {
-        return <li>{this.props.contactData.name}</li>
+        return (
+            <li className="list-group-item">{this.props.contactData.name}
+            <button className="btn btn-outline-danger" onClick={this.handleClick.bind(this)}>Remove</button>
+            </li>
+        )
     }
 }
 
@@ -49,13 +23,12 @@ class ContactInput extends Component
     constructor(props)
     {
         super(props)
-        this.handleClick = this.handleClick.bind(this);
         this.state = { contactName: ''};
     }
 
     handleClick()
     {
-        Contacts.addContact(this.state.contactName);
+        this.props.addContact(this.state.contactName);
         this.setState({contactName: ''});
     }
 
@@ -67,10 +40,9 @@ class ContactInput extends Component
     render()
     {
         return (
-            <div className="contact-input-wrapper">
-            <h1>{this.state.contactName}</h1>
-            <input type='text' name='contactName' onChange={this.updateState.bind(this)}/>
-            <button onClick={this.handleClick}>Add</button>
+            <div className="contact-input-wrapper form-group">
+            <input className="form-control" type='text' name='contactName' onChange={this.updateState.bind(this)}/>
+            <button className="btn btn-outline-success" onClick={this.handleClick.bind(this)}>Add</button>
             </div>
         )
     }
@@ -78,19 +50,52 @@ class ContactInput extends Component
 
 class App extends Component
 {
+    constructor(props)
+    {
+        super(props) 
+        this.state = {contactsData: this.props.contactsData }
+    }
+
+    deleteContact(contactPk)
+    {
+        let filtered = this.state.contactsData.filter(
+            contact => contact.id !== contactPk
+        );
+        this.setState({contactsData: filtered})
+    }
+
+    addContact(name)
+    {
+        this.state.contactsData.push({id: this.maxId() + 1, name: name});
+        this.setState({contactsData: this.state.contactsData})
+    }
+
+    count()
+    {
+        return this.state.contactsData.length;
+    }
+
+    maxId()
+    {
+        return this.state.contactsData.reduce(
+            (prev, current) => prev.id > current.id ? prev : current
+        ).id
+    }
 
     render()
     {
-        let items =  (this.props.contactsData || []).map(
-            (contactData) => <ContactItem key={contactData.id.toString()} contactData={contactData}/>
+        const items =  (this.state.contactsData || []).map(
+            (contactData) => <ContactItem key={contactData.id.toString()} contactData={contactData} deleteContact={this.deleteContact.bind(this)}/>
         );
         return (
             <div className="App">
+            <div className="jumbotron">
             <h1>Contact List</h1>
-            <ul>
+            </div>
+            <ul className="list-group d-inline-flex p-2">
             {items}
             </ul>
-            <ContactInput/>
+            <ContactInput addContact={this.addContact.bind(this)}/>
             </div>
         );
     }
@@ -98,6 +103,5 @@ class App extends Component
 
 export default App;
 export {
-    App,
-    Contacts,
+    App
 };
