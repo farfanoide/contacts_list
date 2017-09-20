@@ -8,11 +8,16 @@ class ContactItem extends Component
     {
         this.props.deleteContact(this.props.contactData.id);
     }
+
     render()
     {
         return (
-            <li className="list-group-item">{this.props.contactData.name}
-            <button className="btn btn-outline-danger" onClick={this.handleClick.bind(this)}>Remove</button>
+            <li className="list-group-item">
+                {this.props.contactData.name}
+                <button className="btn btn-outline-danger"
+                    onClick={this.handleClick.bind(this)}>
+                    Remove
+                </button>
             </li>
         )
     }
@@ -26,10 +31,15 @@ class ContactInput extends Component
         this.state = { contactName: ''};
     }
 
-    handleClick()
+    handleSubmit(event)
     {
-        this.props.addContact(this.state.contactName);
-        this.setState({contactName: ''});
+        event.preventDefault();
+
+        if (Boolean(this.state.contactName) === true)
+        {
+            this.props.addContact(this.state.contactName);
+            this.setState({contactName: ''});
+        }
     }
 
     updateState(event)
@@ -40,10 +50,19 @@ class ContactInput extends Component
     render()
     {
         return (
-            <div className="contact-input-wrapper form-group">
-            <input className="form-control" type='text' name='contactName' onChange={this.updateState.bind(this)}/>
-            <button className="btn btn-outline-success" onClick={this.handleClick.bind(this)}>Add</button>
-            </div>
+            <form className="contact-input-wrapper form-group"
+                onSubmit={this.handleSubmit.bind(this)}>
+
+                <input type='text'
+                    className="form-control"
+                    name='contactName'
+                    value={this.state.contactName}
+                    onChange={this.updateState.bind(this)}/>
+
+                <button className="btn btn-outline-success" type="submit">
+                    Add
+                </button>
+            </form>
         )
     }
 }
@@ -52,7 +71,7 @@ class App extends Component
 {
     constructor(props)
     {
-        super(props) 
+        super(props)
         this.state = {contactsData: this.props.contactsData }
     }
 
@@ -75,11 +94,17 @@ class App extends Component
         return this.state.contactsData.length;
     }
 
+    defaultId()
+    {
+        return Number(Math.random().toString().slice(13));
+    }
+
     maxId()
     {
         return this.state.contactsData.reduce(
-            (prev, current) => prev.id > current.id ? prev : current
-        ).id
+            (prev, current) => prev.id > current.id ? prev : current,
+            {}
+        ).id || this.defaultId()
     }
 
     render()
@@ -89,13 +114,13 @@ class App extends Component
         );
         return (
             <div className="App">
-            <div className="jumbotron">
-            <h1>Contact List</h1>
-            </div>
-            <ul className="list-group d-inline-flex p-2">
-            {items}
-            </ul>
-            <ContactInput addContact={this.addContact.bind(this)}/>
+                <div className="jumbotron">
+                    <h1>Contact List</h1>
+                </div>
+                <ul className="list-group d-inline-flex p-4">
+                    {items}
+                </ul>
+                <ContactInput addContact={this.addContact.bind(this)}/>
             </div>
         );
     }
