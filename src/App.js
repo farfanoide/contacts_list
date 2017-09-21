@@ -1,9 +1,8 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import './App.css';
 
 
-class ContactItem extends Component
-{
+class ContactItem extends Component {
     handleClick()
     {
         this.props.deleteContact(this.props.contactData.id);
@@ -14,21 +13,20 @@ class ContactItem extends Component
         return (
             <li className="list-group-item">
                 {this.props.contactData.name}
-                <button className="btn btn-outline-danger"
-                    onClick={this.handleClick.bind(this)}>
-                    Remove
+                <button className="btn btn-outline-danger float-right"
+                        onClick={this.handleClick.bind(this)}>
+                    X
                 </button>
             </li>
         )
     }
 }
 
-class ContactInput extends Component
-{
+class ContactInput extends Component {
     constructor(props)
     {
         super(props)
-        this.state = { contactName: ''};
+        this.state = {contactName: ''};
     }
 
     handleSubmit(event)
@@ -38,26 +36,39 @@ class ContactInput extends Component
         if (Boolean(this.state.contactName) === true)
         {
             this.props.addContact(this.state.contactName);
-            this.setState({contactName: ''});
+            this.setState({
+                contactName: '',
+                hasErrors: false,
+            });
+        } else {
+            this.setState({hasErrors: true});
         }
     }
 
     updateState(event)
     {
-        this.setState({contactName: event.target.value});
+        this.setState({
+            contactName: event.target.value,
+            hasErrors: !Boolean(this.state.contactName),
+        });
+    }
+
+    inputClass()
+    {
+        return 'form-control ' + (this.state.hasErrors ? 'is-invalid' : '');
     }
 
     render()
     {
         return (
             <form className="contact-input-wrapper form-group"
-                onSubmit={this.handleSubmit.bind(this)}>
+                  onSubmit={this.handleSubmit.bind(this)}>
 
-                <input type='text'
-                    className="form-control"
-                    name='contactName'
-                    value={this.state.contactName}
-                    onChange={this.updateState.bind(this)}/>
+                  <input type='text'
+                         className={this.inputClass()}
+                         name='contactName'
+                         value={this.state.contactName}
+                         onChange={this.updateState.bind(this)}/>
 
                 <button className="btn btn-outline-success" type="submit">
                     Add
@@ -67,12 +78,11 @@ class ContactInput extends Component
     }
 }
 
-class App extends Component
-{
+class App extends Component {
     constructor(props)
     {
         super(props)
-        this.state = {contactsData: this.props.contactsData }
+        this.state = {contactsData: this.props.contactsData}
     }
 
     deleteContact(contactPk)
@@ -109,8 +119,13 @@ class App extends Component
 
     render()
     {
-        const items =  (this.state.contactsData || []).map(
-            (contactData) => <ContactItem key={contactData.id.toString()} contactData={contactData} deleteContact={this.deleteContact.bind(this)}/>
+        const items = (this.state.contactsData || []).map(
+            (contactData) => {
+                return <ContactItem key={contactData.id.toString()}
+                                    contactData={contactData}
+                                    deleteContact={this.deleteContact.bind(this)}/>
+
+            }
         );
         return (
             <div className="App">
