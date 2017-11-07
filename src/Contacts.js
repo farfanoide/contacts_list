@@ -1,152 +1,166 @@
 import React, {Component} from 'react';
-import './App.css';
 
 // todo: reemplazar por repo remoto
-var contactosData = [
-    {id: 1, name: 'Mario Bross'},
-    {id: 2, name: 'Juan Carlos Google'},
-];
+// var contactosData = [
+//   {id: 1, name: 'Mario Bross'},
+//   {id: 2, name: 'Juan Carlos Google'},
+// ];
 
 class ContactItem extends Component {
-    handleClick()
-    {
-        this.props.deleteContact(this.props.contactData.id);
-    }
+  handleClick()
+  {
+    this.props.deleteContact(this.props.contactData.id);
+  }
 
-    render()
-    {
-        return (
-            <li className="list-group-item">
-                {this.props.contactData.name}
-                <button className="btn btn-outline-danger float-right"
-                        onClick={this.handleClick.bind(this)}>
-                    X
-                </button>
-            </li>
-        )
-    }
+  render()
+  {
+    return (
+      <li className="list-group-item">
+      {this.props.contactData.name}
+      <button className="btn btn-outline-danger float-right"
+      onClick={this.handleClick.bind(this)}>
+      X
+      </button>
+      </li>
+    )
+  }
 }
 
 class ContactInput extends Component {
-    constructor(props)
+  constructor(props)
+  {
+    super(props)
+    this.state = {contactName: ''};
+  }
+
+  handleSubmit(event)
+  {
+    event.preventDefault();
+
+    if (Boolean(this.state.contactName) === true)
     {
-        super(props)
-        this.state = {contactName: ''};
+      this.props.addContact(this.state.contactName);
+      this.setState({
+        contactName: '',
+        hasErrors: false,
+      });
+    } else {
+      this.setState({hasErrors: true});
     }
+  }
 
-    handleSubmit(event)
-    {
-        event.preventDefault();
+  updateState(event)
+  {
+    this.setState({
+      contactName: event.target.value,
+      hasErrors: !Boolean(this.state.contactName),
+    });
+  }
 
-        if (Boolean(this.state.contactName) === true)
-        {
-            this.props.addContact(this.state.contactName);
-            this.setState({
-                contactName: '',
-                hasErrors: false,
-            });
-        } else {
-            this.setState({hasErrors: true});
-        }
-    }
+  inputClass()
+  {
+    return 'form-control ' + (this.state.hasErrors ? 'is-invalid' : '');
+  }
 
-    updateState(event)
-    {
-        this.setState({
-            contactName: event.target.value,
-            hasErrors: !Boolean(this.state.contactName),
-        });
-    }
+  render()
+  {
+    return (
+      <form className="contact-input-wrapper form-group"
+      onSubmit={this.handleSubmit.bind(this)}>
 
-    inputClass()
-    {
-        return 'form-control ' + (this.state.hasErrors ? 'is-invalid' : '');
-    }
+      <input type='text'
+      className={this.inputClass()}
+      name='contactName'
+      value={this.state.contactName}
+      onChange={this.updateState.bind(this)}/>
 
-    render()
-    {
-        return (
-            <form className="contact-input-wrapper form-group"
-                  onSubmit={this.handleSubmit.bind(this)}>
-
-                  <input type='text'
-                         className={this.inputClass()}
-                         name='contactName'
-                         value={this.state.contactName}
-                         onChange={this.updateState.bind(this)}/>
-
-                <button className="btn btn-outline-success" type="submit">
-                    Add
-                </button>
-            </form>
-        )
-    }
+      <button className="btn btn-outline-success" type="submit">
+      Add
+      </button>
+      </form>
+    )
+  }
 }
 
 class Contacts extends Component {
-    constructor(props)
-    {
-        super(props)
-        this.state = {contactsData: contactosData}
+
+  constructor(props)
+  {
+    super(props)
+    this.state = {contactsData: [] }//contactosData}
+  }
+
+  componentDidMount() {
+    var options = {
+      method: 'GET',
+      mode: 'cors',
     }
 
-    deleteContact(contactPk)
-    {
-        let filtered = this.state.contactsData.filter(
-            contact => contact.id !== contactPk
-        );
-        this.setState({contactsData: filtered})
-    }
+    fetch('http://localhost:3001/contacts.json', options)
+      .then((response) => {
+        return response.json()
+      })
+      .then((contacts) => {
+        this.setState({ contactsData: contacts })
+      })
+  }
+  
+  deleteContact(contactPk)
+  {
+    let filtered = this.state.contactsData.filter(
+      contact => contact.id !== contactPk
+    );
+    this.setState({contactsData: filtered})
+  }
 
-    addContact(name)
-    {
-        this.state.contactsData.push({id: this.maxId() + 1, name: name});
-        this.setState({contactsData: this.state.contactsData})
-    }
+  addContact(name)
+  {
+    this.state.contactsData.push({id: this.maxId() + 1, name: name});
+    this.setState({contactsData: this.state.contactsData})
+  }
 
-    count()
-    {
-        return this.state.contactsData.length;
-    }
+  count()
+  {
+    return this.state.contactsData.length;
+  }
 
-    defaultId()
-    {
-        return Number(Math.random().toString().slice(13));
-    }
+  defaultId()
+  {
+    return Number(Math.random().toString().slice(13));
+  }
 
-    maxId()
-    {
-        return this.state.contactsData.reduce(
-            (prev, current) => prev.id > current.id ? prev : current,
-            {}
-        ).id || this.defaultId()
-    }
+  maxId()
+  {
+    return this.state.contactsData.reduce(
+      (prev, current) => prev.id > current.id ? prev : current,
+      {}
+    ).id || this.defaultId()
+  }
 
-    render()
-    {
-        const items = (this.state.contactsData || []).map(
-            (contactData) => {
-                return <ContactItem key={contactData.id.toString()}
-                                    contactData={contactData}
-                                    deleteContact={this.deleteContact.bind(this)}/>
-
-            }
-        );
-        return (
-            <div className="App">
-                <div className="jumbotron">
-                    <h1>Contact List</h1>
-                </div>
-                <ul className="list-group d-inline-flex p-4">
-                    {items}
-                </ul>
-                <ContactInput addContact={this.addContact.bind(this)}/>
-            </div>
-        );
-    }
+  render()
+  {
+    const items = (this.state.contactsData || []).map(
+      (contactData) => {
+        return <ContactItem key={contactData.id.toString()}
+        contactData={contactData}
+        deleteContact={this.deleteContact.bind(this)}/>
+      }
+    );
+    return (
+      <div className="App">
+      <div className="jumbotron">
+      <h1>Contact List</h1>
+      </div>
+      <ul className="list-group d-inline-flex p-4">
+      {items}
+      </ul>
+      <ContactInput addContact={this.addContact.bind(this)}/>
+      </div>
+    );
+  }
 }
 
 export default Contacts;
 export {
-    Contacts
+  Contacts
 };
