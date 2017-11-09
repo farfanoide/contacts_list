@@ -96,7 +96,7 @@ class Contacts extends Component {
       mode: 'cors',
     }
 
-    fetch('http://localhost:3001/contacts.json', options)
+    fetch('http://localhost:8000/contacts', options)
       .then((response) => {
         return response.json()
       })
